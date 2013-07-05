@@ -6,4 +6,6 @@ class SimpleWidgetTestCase(unittest.TestCase):
         self.bucket = s3.ScreenshotsBucket()
 
     def test_bucket(self):
-        print self.bucket.screenshots_bucket
+        print self.bucket.bucket
+    def test_upload(self):
+        print self.bucket.upload_screenshot("aanvullen_tot_100.png")

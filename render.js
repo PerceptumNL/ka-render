@@ -1,51 +1,52 @@
-// Needs to have python SimpleHTTPServer running at http://127.0.0.1:8000
-//
-// http://127.0.0.1:8000/test/index.html#absolute_value.html
-// 
-// Saves the a PNG screenshot in absolute_value.png, or 
-// absolute_value-1b302c93249f99f0de4f2432a7ac4eae012b5820.png
-// if commit hex value is passed as 2nd argument
+// Render Khan exercise contained in the URL specified in the 2nd argument, ie:
+// phantomjs render.js http://127.0.0.1:8000/exercises/absolute_value.html
+
+function findBaseName(url) {
+    var fileName = url.substring(url.lastIndexOf('/') + 1);
+    var dot = fileName.lastIndexOf('.');
+    return dot == -1 ? fileName : fileName.substring(0, dot);
+}
 
 var page = require('webpage').create();
 var system = require('system');
-var filename = system.args[1];
-var basename = filename.split(".html")[0]
-page.onConsoleMessage = function (msg) {
+var url = system.args[1];
+var basename = findBaseName(url);
+var filename = basename + ".html";
+
+page.onConsoleMessage = function(msg) {
     if (msg == "RENDER") {
-        console.log("Render " + filename)
-        page.render(basename + '.png');
+        console.log("Render " + basename + ".html")
+        page.render("tmp/" + basename + '.png');
         phantom.exit();
-    }
-    else {
-        console.log("b: " + msg);
+    } else {
+        console.log(msg);
     }
 };
-page.open('http://127.0.0.1:8000/exercises/' + filename, function (s) {
-    console.log("Loaded " + filename + ": " + s)
-    page.evaluate(function () {
+
+page.open(url, function (s) {
+    console.log("Load url: " + url)
+    page.evaluate(function() {
+        var self = this;
+        console.log("Evaluating page...")
         setTimeout(function() {
             var $ = window.$;
             var Khan = window.Khan;
-            $(document).one("problemLoaded", function() {
-                try {
-                    console.log("Problem Loaded")
-                    $("#hint").click()
-                    $("#hint").click()
-                    $("#hint").click()
-                    $("#hint").click()
-                    $("#hint").click()
-                    $("#hint").click()
-                    $("#hint").click()
-                    $("#hint").click()
-                    console.log("RENDER")
-                } catch(e) {
-                    console.log("ERROR: " + e)
-                    console.log("RENDER")
-                }
-            });
-        }, 100)
+            console.log("Problem Loaded")
+            try {
+                $("#hint").click()
+                $("#hint").click()
+                $("#hint").click()
+                $("#hint").click()
+                $("#hint").click()
+                $("#hint").click()
+                $("#hint").click()
+                $("#hint").click()
+                console.log("RENDER");
+            } catch(e) {
+                console.log("RENDER")
+                console.log("ERROR: " + e)
+                //phantom.exit();
+            }
+        }, 20000);
     })
-    setTimeout(function() {
-        console.log("RENDER")
-    }, 20000)
 });
